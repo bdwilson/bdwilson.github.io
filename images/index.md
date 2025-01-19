@@ -8,7 +8,7 @@
 <body>
   <h1>Index of /images</h1>
   <ul>
-	{% assign sorted_files = site.static_files | sort:"date" %}
+	{% assign sorted_files = site.static_files | sort:"order" %}
     {% for url in sorted_files %}
 	{% if url.path contains '/images' %}
     	<li><a href="{{ url.path | escape }}">{{ url.path | escape }}</a> </li>
