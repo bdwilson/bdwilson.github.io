@@ -105,7 +105,7 @@
   <div class="grid" id="grid">
 
 {% assign img_exts = ".jpg,.jpeg,.png,.gif,.webp,.heic,.tiff,.tif" | split: "," %}
-{% assign sorted = site.static_files | sort: "modified_time" | reverse %}
+{% assign sorted = site.static_files | sort: "name" | reverse %}
 {% for f in sorted %}
   {% if f.path contains '/images/' %}
     {% assign ext = f.extname | downcase %}
@@ -127,7 +127,7 @@
           </div>
           <div class="row">
             <span class="label">IMG</span>
-            <button class="copy-btn" data-copy="{{ html_img | xml_escape }}" onclick="copy(this)" title="{{ html_img }}">{{ html_img }}</button>
+            <button class="copy-btn" data-copy="{{ html_img | xml_escape }}" onclick="copy(this)" title="{{ html_img }}">{{ html_img | xml_escape }}</button>
           </div>
           <div class="row">
             <span class="label">LINK</span>
