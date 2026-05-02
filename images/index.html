@@ -187,6 +187,10 @@ layout: none
             <button class="copy-btn" data-format="img" onclick="copy(this)"></button>
           </div>
           <div class="row">
+            <span class="label">IMG-C</span>
+            <button class="copy-btn" data-format="imgc" onclick="copy(this)"></button>
+          </div>
+          <div class="row">
             <span class="label">LINK</span>
             <button class="copy-btn" data-format="link" onclick="copy(this)">&lt;a href&gt;&lt;img&gt;&lt;/a&gt;</button>
           </div>
@@ -240,6 +244,11 @@ layout: none
       if (img) {
         const v = `<img src="${url}" width=${w}px>`;
         img.dataset.copy = v; img.textContent = v; img.title = v;
+      }
+      const imgc = card.querySelector("[data-format='imgc']");
+      if (imgc) {
+        const v = `<center><img src="${url}" width=${w}px></center>`;
+        imgc.dataset.copy = v; imgc.textContent = v; imgc.title = v;
       }
       const link = card.querySelector("[data-format='link']");
       if (link) {
