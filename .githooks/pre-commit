@@ -1,7 +1,26 @@
 #!/usr/bin/env bash
-# Strips GPS/geotag data from staged image files before commit.
+# 1. Timestamp-renames newly added images in images/ (ensures newest-first sort order)
+# 2. Strips GPS/geotag data from staged image files before commit.
 # Requires: exiftool (brew install exiftool)
 
+# --- Step 1: Timestamp-rename new images in images/ ---
+new_images=$(git diff --cached --name-only --diff-filter=A | grep -iE '^images/[^/]+\.(jpg|jpeg|png|gif|webp|heic|tiff|tif)$')
+
+if [ -n "$new_images" ]; then
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    while IFS= read -r file; do
+        filename=$(basename "$file")
+        # Skip if already has a timestamp prefix (YYYYMMDD_HHMMSS_)
+        if echo "$filename" | grep -qE '^[0-9]{8}_[0-9]{6}_'; then
+            continue
+        fi
+        newfile="images/${TIMESTAMP}_${filename}"
+        git mv "$file" "$newfile"
+        echo "  renamed: $filename → ${TIMESTAMP}_${filename}"
+    done <<< "$new_images"
+fi
+
+# --- Step 2: Strip GPS data from staged images ---
 if ! command -v exiftool &>/dev/null; then
     echo "WARNING: exiftool not installed — GPS data will NOT be stripped."
     echo "         Install with: brew install exiftool"
