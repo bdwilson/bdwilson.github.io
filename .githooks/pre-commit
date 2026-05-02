@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Strips GPS/geotag data from staged image files before commit.
+# Requires: exiftool (brew install exiftool)
+
+if ! command -v exiftool &>/dev/null; then
+    echo "WARNING: exiftool not installed — GPS data will NOT be stripped."
+    echo "         Install with: brew install exiftool"
+    echo "         Then re-run: bash install-hooks.sh"
+    exit 0
+fi
+
+staged=$(git diff --cached --name-only --diff-filter=ACM | grep -iE '\.(jpg|jpeg|png|gif|webp|heic|tiff|tif)$')
+[ -z "$staged" ] && exit 0
+
+echo "Stripping GPS data from staged images..."
+while IFS= read -r file; do
+    [ -f "$file" ] || continue
+    exiftool -gps:all= -overwrite_original "$file" -q
+    git add "$file"
+    echo "  stripped: $file"
+done <<< "$staged"
+
+exit 0
