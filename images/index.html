@@ -82,13 +82,26 @@ layout: none
       object-fit: cover;
       display: block;
     }
-    .card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
     .filename {
       font-size: 12px;
       color: #8b949e;
       word-break: break-all;
       line-height: 1.4;
     }
+    .desc-input {
+      width: 100%;
+      padding: 5px 9px;
+      font-size: 11px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      border-radius: 4px;
+      outline: none;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .desc-input:focus { border-color: #388bfd; }
+    .desc-input::placeholder { color: #484f58; }
     .snippets { display: flex; flex-direction: column; gap: 5px; }
     .row { display: flex; align-items: stretch; gap: 5px; }
     .label {
@@ -144,7 +157,7 @@ layout: none
   <div class="toolbar">
     <input id="search" type="text" placeholder="Filter by filename…" oninput="filter()">
     <div class="width-wrap">
-      Width: <input id="width" type="number" value="400" min="1" max="9999" oninput="updateWidth()"> px
+      Width: <input id="width" type="number" value="400" min="1" max="9999" oninput="updateAll()"> px
     </div>
   </div>
   <div id="count"></div>
@@ -157,17 +170,17 @@ layout: none
     {% assign ext = f.extname | downcase %}
     {% if img_exts contains ext %}
       {% assign full_url = "https://bdwilson.github.io" | append: f.path %}
-      {% assign md_img   = "![" | append: f.basename | append: "](" | append: full_url | append: ")" %}
     <div class="card" data-name="{{ f.name | downcase }}" data-url="{{ full_url }}">
       <div class="thumb-wrap">
         <img src="{{ f.path }}" alt="{{ f.name }}" loading="lazy">
       </div>
       <div class="card-body">
         <div class="filename">{{ f.name }}</div>
+        <input class="desc-input" type="text" value="{{ f.basename }}" placeholder="Description…" oninput="updateCard(this.closest('.card'))">
         <div class="snippets">
           <div class="row">
             <span class="label">MD</span>
-            <button class="copy-btn" data-copy="{{ md_img | xml_escape }}" onclick="copy(this)" title="{{ md_img }}">{{ md_img }}</button>
+            <button class="copy-btn" data-format="md" onclick="copy(this)"></button>
           </div>
           <div class="row">
             <span class="label">IMG</span>
@@ -176,6 +189,10 @@ layout: none
           <div class="row">
             <span class="label">LINK</span>
             <button class="copy-btn" data-format="link" onclick="copy(this)">&lt;a href&gt;&lt;img&gt;&lt;/a&gt;</button>
+          </div>
+          <div class="row">
+            <span class="label">DESC</span>
+            <button class="copy-btn" data-format="desc" onclick="copy(this)">[desc](url)</button>
           </div>
           <div class="row">
             <span class="label">URL</span>
@@ -201,23 +218,35 @@ layout: none
       });
     }
 
-    function updateWidth() {
+    function updateCard(card) {
+      const url = card.dataset.url;
       const w = parseInt(document.getElementById("width").value) || 400;
-      document.querySelectorAll(".card").forEach(card => {
-        const url = card.dataset.url;
-        const imgBtn = card.querySelector("[data-format='img']");
-        if (imgBtn) {
-          const val = `<img src="${url}" width=${w}px>`;
-          imgBtn.dataset.copy = val;
-          imgBtn.textContent = val;
-          imgBtn.title = val;
-        }
-        const linkBtn = card.querySelector("[data-format='link']");
-        if (linkBtn) {
-          linkBtn.dataset.copy = `<a href="${url}"><img src="${url}" width=${w}px></a>`;
-          linkBtn.title = linkBtn.dataset.copy;
-        }
-      });
+      const desc = card.querySelector(".desc-input").value;
+
+      const md = card.querySelector("[data-format='md']");
+      if (md) {
+        const v = `![${desc}](${url})`;
+        md.dataset.copy = v; md.textContent = v; md.title = v;
+      }
+      const img = card.querySelector("[data-format='img']");
+      if (img) {
+        const v = `<img src="${url}" width=${w}px>`;
+        img.dataset.copy = v; img.textContent = v; img.title = v;
+      }
+      const link = card.querySelector("[data-format='link']");
+      if (link) {
+        const v = `<a href="${url}"><img src="${url}" width=${w}px></a>`;
+        link.dataset.copy = v; link.title = v;
+      }
+      const desc_btn = card.querySelector("[data-format='desc']");
+      if (desc_btn) {
+        const v = `<a href="${url}">${desc}</a>`;
+        desc_btn.dataset.copy = v; desc_btn.textContent = v; desc_btn.title = v;
+      }
+    }
+
+    function updateAll() {
+      document.querySelectorAll(".card").forEach(updateCard);
     }
 
     function filter() {
@@ -231,7 +260,7 @@ layout: none
       document.getElementById("count").textContent = n + " image" + (n === 1 ? "" : "s");
     }
 
-    updateWidth();
+    updateAll();
     filter();
   </script>
 </body>
