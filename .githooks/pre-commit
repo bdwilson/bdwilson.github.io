@@ -15,13 +15,13 @@ if [ -n "$new_images" ]; then
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     while IFS= read -r file; do
         filename=$(basename "$file")
-        # Skip if already has a timestamp prefix (YYYYMMDD_HHMMSS_)
-        if echo "$filename" | grep -qE '^[0-9]{8}_[0-9]{6}_'; then
+        # Skip if already has a timestamp prefix (z_YYYYMMDD_HHMMSS_)
+        if echo "$filename" | grep -qE '^z_[0-9]{8}_[0-9]{6}_'; then
             continue
         fi
-        newfile="images/${TIMESTAMP}_${filename}"
+        newfile="images/z_${TIMESTAMP}_${filename}"
         git mv "$file" "$newfile"
-        echo "  renamed: $filename → ${TIMESTAMP}_${filename}"
+        echo "  renamed: $filename → z_${TIMESTAMP}_${filename}"
     done <<< "$new_images"
 fi
 
