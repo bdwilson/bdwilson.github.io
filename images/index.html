@@ -195,6 +195,14 @@ layout: none
             <button class="copy-btn" data-format="desc" onclick="copy(this)">[desc](url)</button>
           </div>
           <div class="row">
+            <span class="label">HREF</span>
+            <button class="copy-btn" data-format="href" onclick="copy(this)">&lt;a href=desc&gt;&lt;img&gt;&lt;/a&gt;</button>
+          </div>
+          <div class="row">
+            <span class="label">WRAP</span>
+            <button class="copy-btn" data-format="wrap" onclick="copy(this)">&lt;div float:right&gt;&lt;img&gt;&lt;/div&gt;</button>
+          </div>
+          <div class="row">
             <span class="label">URL</span>
             <button class="copy-btn" data-copy="{{ full_url }}" onclick="copy(this)" title="{{ full_url }}">{{ full_url }}</button>
           </div>
@@ -242,6 +250,16 @@ layout: none
       if (desc_btn) {
         const v = `<a href="${url}">${desc}</a>`;
         desc_btn.dataset.copy = v; desc_btn.textContent = v; desc_btn.title = v;
+      }
+      const href_btn = card.querySelector("[data-format='href']");
+      if (href_btn) {
+        const v = `<a href="${desc}"><img src="${url}" width=${w}px></a>`;
+        href_btn.dataset.copy = v; href_btn.title = v;
+      }
+      const wrap_btn = card.querySelector("[data-format='wrap']");
+      if (wrap_btn) {
+        const v = `<div style="float: right; margin: 0 0 1em 1.5em;">\n  <img src="${url}" width=${w}px>\n</div>`;
+        wrap_btn.dataset.copy = v; wrap_btn.title = v;
       }
     }
 
