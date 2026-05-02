@@ -6,6 +6,9 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOOKS_SRC="$REPO_ROOT/.githooks"
 HOOKS_DST="$REPO_ROOT/.git/hooks"
 
+git config alias.add-images '!git ls-files --others --exclude-standard -- images/ | grep -iE "\.(jpg|jpeg|png|gif|webp|heic|tiff|tif)$" | xargs -r git add'
+echo "Installed: git alias 'add-images'"
+
 for hook in "$HOOKS_SRC"/*; do
     name=$(basename "$hook")
     target="$HOOKS_DST/$name"

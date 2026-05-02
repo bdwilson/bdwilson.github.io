@@ -2,6 +2,11 @@
 # 1. Timestamp-renames newly added images in images/ (ensures newest-first sort order)
 # 2. Strips GPS/geotag data from staged image files before commit.
 # Requires: exiftool (brew install exiftool)
+#
+# Usage: stage new images first, then commit:
+#   git add-images && git commit -m "..."
+#
+# The git alias 'add-images' is defined in .git/config via install-hooks.sh.
 
 # --- Step 1: Timestamp-rename new images in images/ ---
 new_images=$(git diff --cached --name-only --diff-filter=A | grep -iE '^images/[^/]+\.(jpg|jpeg|png|gif|webp|heic|tiff|tif)$')
