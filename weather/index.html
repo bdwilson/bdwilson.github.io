@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WRAL Weather</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #111; color: #eee; padding: 1rem; }
+    h1 { font-size: 1.2rem; margin-bottom: 1rem; color: #ccc; }
+    .grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .panel { display: flex; flex-direction: column; align-items: center; }
+    .panel h3 { margin-bottom: 0.4rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; }
+    .panel img { max-width: 480px; width: 100%; border-radius: 6px; background: #222; min-height: 80px; }
+    .error { color: tomato; font-size: 0.8rem; margin-top: 0.25rem; }
+    .ts { font-size: 0.65rem; color: #555; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <h1>WRAL Weather</h1>
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const slugs = [
+      { slug: "central_nc",                 label: "Central NC" },
+      { slug: "forecast_7day_wral_raleigh", label: "7-Day Forecast" },
+      { slug: "radar_nc2d",                 label: "Radar NC" },
+      { slug: "plots_rainfall24hours_dma2d",label: "24hr Rainfall" },
+    ];
+
+    const BASE = "https://api.wral.com/wxdata/v2/maps/frames?slug=";
+
+    async function loadPanel({ slug, label }) {
+      const panel = document.createElement("div");
+      panel.className = "panel";
+
+      const h = document.createElement("h3");
+      h.textContent = label;
+      panel.appendChild(h);
+
+      const img = document.createElement("img");
+      img.alt = label;
+      panel.appendChild(img);
+
+      const ts = document.createElement("p");
+      ts.className = "ts";
+      panel.appendChild(ts);
+
+      document.getElementById("grid").appendChild(panel);
+
+      try {
+        const res = await fetch(BASE + slug);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        const frame = json.data.frames[0];
+        img.src = frame.url;
+        ts.textContent = new Date(frame.recorded_at).toLocaleString();
+      } catch (e) {
+        const err = document.createElement("p");
+        err.className = "error";
+        err.textContent = "Failed: " + e.message;
+        panel.appendChild(err);
+      }
+    }
+
+    slugs.forEach(loadPanel);
+  </script>
+</body>
+</html>
