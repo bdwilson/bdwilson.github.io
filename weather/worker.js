@@ -1,6 +1,7 @@
-// Cloudflare Worker — deploy at dash.cloudflare.com > Workers
-// Returns a 302 redirect to the latest WRAL weather image for a given slug.
-// Usage: https://your-worker.your-subdomain.workers.dev/?slug=central_nc
+// Cloudflare Worker — deploy at dash.cloudflare.com > Workers > Create
+// Two modes:
+//   ?slug=central_nc          → 302 redirect to image (for Hubitat image tiles)
+//   ?slug=central_nc&json=1   → JSON {url, recorded_at} with CORS headers (for dashboard)
 
 const ALLOWED_SLUGS = new Set([
   "central_nc",
@@ -8,6 +9,11 @@ const ALLOWED_SLUGS = new Set([
   "radar_nc2d",
   "plots_rainfall24hours_dma2d",
 ]);
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET",
+};
 
 export default {
   async fetch(request) {
@@ -17,7 +23,7 @@ export default {
     if (!slug || !ALLOWED_SLUGS.has(slug)) {
       return new Response(
         "Missing or unknown slug. Valid values: " + [...ALLOWED_SLUGS].join(", "),
-        { status: 400 }
+        { status: 400, headers: CORS }
       );
     }
 
@@ -26,12 +32,19 @@ export default {
     );
 
     if (!apiRes.ok) {
-      return new Response("WRAL API error: " + apiRes.status, { status: 502 });
+      return new Response("WRAL API error: " + apiRes.status, { status: 502, headers: CORS });
     }
 
     const json = await apiRes.json();
-    const imageUrl = json.data.frames[0].url;
+    const frame = json.data.frames[0];
 
-    return Response.redirect(imageUrl, 302);
+    if (searchParams.get("json")) {
+      return new Response(
+        JSON.stringify({ url: frame.url, recorded_at: frame.recorded_at }),
+        { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
+      );
+    }
+
+    return Response.redirect(frame.url, 302);
   },
 };

@@ -28,7 +28,8 @@
       { slug: "plots_rainfall24hours_dma2d",label: "24hr Rainfall" },
     ];
 
-    const BASE = "https://api.wral.com/wxdata/v2/maps/frames?slug=";
+    // After deploying worker.js to Cloudflare Workers, replace this URL:
+    const BASE = "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev/?json=1&slug=";
 
     async function loadPanel({ slug, label }) {
       const panel = document.createElement("div");

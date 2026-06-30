@@ -17,7 +17,9 @@
     if (!slug) {
       document.body.innerHTML = '<p class="error">Missing ?slug= parameter</p>';
     } else {
-      fetch("https://api.wral.com/wxdata/v2/maps/frames?slug=" + encodeURIComponent(slug))
+      // After deploying worker.js to Cloudflare Workers, replace this URL:
+      const WORKER = "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev";
+      fetch(WORKER + "/?json=1&slug=" + encodeURIComponent(slug))
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(json => {
           const img = document.createElement("img");
